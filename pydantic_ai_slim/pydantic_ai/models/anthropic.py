@@ -410,7 +410,7 @@ class AnthropicModel(Model):
         betas.update(builtin_tool_betas)
         container = self._get_container(messages, model_settings)
         try:
-            return await self.client.beta.messages.create(
+            response = await self.client.beta.messages.create(
                 max_tokens=model_settings.get('max_tokens', 4096),
                 system=system_prompt or OMIT,
                 messages=anthropic_messages,
@@ -431,6 +431,7 @@ class AnthropicModel(Model):
                 extra_headers=extra_headers,
                 extra_body=model_settings.get('extra_body'),
             )
+            return response
         except APIStatusError as e:
             if (status_code := e.status_code) >= 400:
                 raise ModelHTTPError(status_code=status_code, model_name=self.model_name, body=e.body) from e
@@ -520,6 +521,19 @@ class AnthropicModel(Model):
 
     def _process_response(self, response: BetaMessage) -> ModelResponse:
         """Process a non-streamed response, and prepare a message to return."""
+        # 调试：检查响应类型和内容
+        if not hasattr(response, 'content'):
+            import json
+            debug_info = {
+                'type': type(response).__name__,
+                'value': str(response)[:2000] if isinstance(response, str) else repr(response)[:2000],
+            }
+            if hasattr(response, '__dict__'):
+                debug_info['attrs'] = list(response.__dict__.keys())
+            raise UnexpectedModelBehavior(
+                f"中转代理返回了非标准响应格式:\n{json.dumps(debug_info, ensure_ascii=False, indent=2)}"
+            )
+        
         items: list[ModelResponsePart] = []
         builtin_tool_calls: dict[str, BuiltinToolCallPart] = {}
         for item in response.content:
