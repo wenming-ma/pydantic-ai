@@ -255,7 +255,7 @@ class UsageLimits:
     Each of the limits can be set to `None` to disable that limit.
     """
 
-    request_limit: int | None = 50
+    request_limit: int | None = None
     """The maximum number of requests allowed to the model."""
     tool_calls_limit: int | None = None
     """The maximum number of successful tool calls allowed to be executed."""
@@ -284,7 +284,7 @@ class UsageLimits:
     def __init__(
         self,
         *,
-        request_limit: int | None = 50,
+        request_limit: int | None = None,
         tool_calls_limit: int | None = None,
         input_tokens_limit: int | None = None,
         output_tokens_limit: int | None = None,
@@ -305,7 +305,7 @@ class UsageLimits:
     def __init__(
         self,
         *,
-        request_limit: int | None = 50,
+        request_limit: int | None = None,
         tool_calls_limit: int | None = None,
         request_tokens_limit: int | None = None,
         response_tokens_limit: int | None = None,
@@ -322,7 +322,7 @@ class UsageLimits:
     def __init__(
         self,
         *,
-        request_limit: int | None = 50,
+        request_limit: int | None = None,
         tool_calls_limit: int | None = None,
         input_tokens_limit: int | None = None,
         output_tokens_limit: int | None = None,
